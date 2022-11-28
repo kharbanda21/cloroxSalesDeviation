@@ -1,17 +1,18 @@
 using {cuid} from '@sap/cds/common';
 namespace clorox.sales;
 
-entity Records: cuid {
-  poNumber  : String;
-  itemNumber  : Integer;
+entity Records {
+  key poNumber  : String;
+  key itemNumber  : String;
   orderNumber: String;
-  price: Decimal;
-  quantity: Integer;
+  price: String;
+  quantity: String;
   deliveryDate: Date;
   deviationType: String;
   emailId: String;
-  reminderDate1: Date;
-  reminderDate2: Date;
-  reminderDate3: Date;
-  poUpdateFlag: Integer;
+  initialMailDate: DateTime;
+  reminderDate1: DateTime;
+  reminderDate2: DateTime;
+  reminderDate3: DateTime;
+  poUpdateFlag: String;
 }

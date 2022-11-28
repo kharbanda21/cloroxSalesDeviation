@@ -1,4 +1,13 @@
+POST http://localhost:4004/catalog/createRecord
+Content-Type: application/json;odata.metadata=minimal
+
+{
+   "createData" : "{\"poNumber\":\"PO10\",\"itemNumber\":\"34\",\"orderNumber\":\"ORD02\",\"price\":\"112.00\",\"quantity\":\"7\",\"deliveryDate\":\"2022-11-23\",\"deviationType\":\"type1\",\"emailId\":\"sahil.kharbanda@accenture.com\",\"initialMailDate\":\"\",\"reminderDate1\":\"\",\"reminderDate2\":\"\",\"reminderDate3\":\"\",\"poUpdateFlag\":\"0\"}"
+}
+
+#####################
+
 POST http://localhost:4004/catalog/Records
 Content-Type: application/json;odata.metadata=minimal
 
-{"poNumber":"PO003", "itemNumber": 10, "orderNumber": "ORD003", "price": 112.00, "quantity": 7, "deliveryDate": "2022-11-23", "deviationType": "type1", "emailId": "sahil.kharbanda@accenture.com" ,"reminderDate1": "2022-11-23", "reminderDate2": "2022-11-24", "reminderDate3": "2022-11-25", "poUpdateFlag": 0}
+{"poNumber":"PO10", "itemNumber": "35", "orderNumber": "ORD02", "price": "112.00", "quantity": "7", "deliveryDate": "2022-11-28", "deviationType": "type1", "emailId": "sahil.kharbanda@accenture.com" ,"initialMailDate": null,"reminderDate1": null, "reminderDate2": null, "reminderDate3": null, "poUpdateFlag": "0"}

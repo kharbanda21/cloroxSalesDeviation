@@ -7,7 +7,9 @@
       "type": "shell",
       "label": "cds watch",
       "command": "cds",
-      "args": ["watch"],
+      "args": [
+        "watch"
+      ],
       "group": {
         "kind": "build",
         "isDefault": true
@@ -18,8 +20,48 @@
       "type": "shell",
       "label": "cds run",
       "command": "cds",
-      "args": ["run", "--with-mocks", "--in-memory?"],
+      "args": [
+        "run",
+        "--with-mocks",
+        "--in-memory?"
+      ],
       "problemMatcher": []
+    },
+    {
+      "label": "cds-deploy-to-hana-cloroxSalesDeviation-Deviation-db",
+      "type": "shell",
+      "command": "cds",
+      "args": [
+        "deploy",
+        "--to",
+        "hana:Deviation-db",
+        "--no-save"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "problemMatcher": [
+        "$cap-hdi-bind-handler"
+      ]
+    },
+    {
+      "label": "cds-deploy-to-hana-cloroxSalesDeviation-Deviation-hdiDeviation-db-deployer-ws-58wdj",
+      "type": "shell",
+      "command": "cds",
+      "args": [
+        "deploy",
+        "--to",
+        "hana:Deviation-hdiDeviation-db-deployer-ws-58wdj",
+        "--no-save"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "problemMatcher": [
+        "$cap-hdi-bind-handler"
+      ]
     }
   ]
 }

@@ -7,8 +7,9 @@
   "private": true,
   "dependencies": {
     "@sap/cds": "^6",
+    "@sap/hana-client": "^2.14.23",
     "express": "^4",
-    "hdb": "^0.19.0",
+    "hdb": "^0.19.5",
     "sap-cf-mailer": "^0.0.5"
   },
   "scripts": {
@@ -52,7 +53,16 @@
     "requires": {
       "db": {
         "kind": "hana-cloud"
+      },
+      "Mail_Destination": {
+        "kind": "destination",
+        "credentials": {
+          "destination": "Mail_Destination"
+        }
       }
     }
+  },
+  "devDependencies": {
+    "@sap/hdi-deploy": "4.5.1"
   }
 }
