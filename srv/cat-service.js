@@ -5,7 +5,7 @@ const transporter = new SapCfMailer("Mail_Destination");
 
 module.exports = cds.service.impl(srv => {
     srv.after('CREATE', 'Records', _triggerInitMail)
-
+    srv.on('batchReminders', _triggerReminder)
     srv.on('createRecord', async (req) => {
         try {
             let payload = JSON.parse(req.data.createData);
@@ -59,7 +59,7 @@ async function _sendMail(payload, dateEmail) {
 async function _updateRecord(req, payload, dateEmail) {
     const tx = cds.transaction(req);
     try {
-        const updateResult = await tx.run(UPDATE(Records).set({ initialMailDate: dateEmail }).where({ poNumber:payload.poNumber,itemNumber: payload.itemNumber }));
+        const updateResult = await tx.run(UPDATE(Records).set({ initialMailDate: dateEmail }).where({ poNumber: payload.poNumber, itemNumber: payload.itemNumber }));
         return updateResult;
     }
     catch (error) {
@@ -123,7 +123,7 @@ async function _getDateTime(date_ob) {
     return nowDateTime;
 }
 
-async function _triggerInitMail(payload,req) {
+async function _triggerInitMail(payload, req) {
     let dateEmail = await _getDateTime(new Date());
     let resultMail = await _sendMail(payload, dateEmail);
     //after sending mail update the date
@@ -139,5 +139,56 @@ async function _triggerInitMail(payload,req) {
         //     message: "Mail not sent"
         // })
     }
-    
+
+}
+
+async function _triggerReminder(req) {
+    const tx = cds.transaction(req);
+    try {
+        const selectResult = await tx.run(SELECT.from(Records).where({ poUpdateFlag: '0' }));
+        if (selectResult) {
+            let dateReminder = await _getDateTime(new Date());
+            selectResult.forEach(record => {
+                //call PO service to check deviation corrected or not
+
+                //when deviation is still there
+                if (!record.reminderDate1) {
+                    let diffHrs = 48;
+                    if (record.initialMailDate) {
+                        diffHrs = diff_hours(new Date(dateReminder), new Date(record.initialMailDate));
+                    }
+                    if (diffHrs >= 48) {
+                        // _sendMail(record, dateReminder);
+                        let email = record.emailId;
+                        let sSubject = "REMINDER - You have Order Confirmation price deviations pending approval";
+                        let sText = "PO – " + record.poNumber + " (item-" + record.itemNumber + ") was confirmed by the supplier – ABC and have items that were confirmed on " + dateReminder + " is out of tolerance and that requires approval.";
+                        transporter.sendMail({
+                            to: email,
+                            subject: sSubject,
+                            text: sText
+                        }).then((mailResult)=>{
+                            if(mailResult.accepted.length > 0) {
+                                cds.run(UPDATE(Records).set({ reminderDate1: dateReminder }).where({ poNumber: record.poNumber, itemNumber: record.itemNumber }));
+                            }
+                        });              
+                    }
+                }
+            });
+        }
+        let resultData = { data: "Success" };
+        return resultData;
+    }
+    catch (error) {
+        return req.error({
+            message: error.message
+        })
+    }
+}
+
+function diff_hours(dt2, dt1) {
+
+    var diff = (dt2.getTime() - dt1.getTime()) / 1000;
+    diff /= (60 * 60);
+    return Math.abs(Math.round(diff));
+
 }

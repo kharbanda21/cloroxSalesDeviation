@@ -7,4 +7,5 @@ service CatalogService {
         data : String
     };
     action createRecord(createData : String) returns response;
+    action batchReminders() returns response;
 }

@@ -21,13 +21,6 @@ modules:
   path: db
   requires:
   - name: Deviation-db
-    properties:
-      TARGET_CONTAINER: ~{hdi-container-name}
-  - name: cross-container-service-1
-    group: SERVICE_REPLACEMENTS
-    properties:
-      key: ServiceName_1
-      service: ~{the-service-name}
   parameters:
     buildpack: nodejs_buildpack
 - name: Deviation-destination-content
@@ -36,10 +29,6 @@ modules:
   - name: Deviation-destination-service
     parameters:
       content-target: true
-  - name: Deviation_html_repo_host
-    parameters:
-      service-key:
-        name: Deviation_html_repo_host-key
   - name: uaa_Deviation
     parameters:
       service-key:
@@ -48,15 +37,11 @@ modules:
     content:
       instance:
         destinations:
-        - Name: deviationrouter_Deviation_html_repo_host
-          ServiceInstanceName: Deviation-html5-app-host-service
-          ServiceKeyName: Deviation_html_repo_host-key
-          sap.cloud.service: deviationrouter
         - Authentication: OAuth2UserTokenExchange
-          Name: deviationrouter_uaa_Deviation
+          Name: Deviation_approuter_uaa_Deviation
           ServiceInstanceName: Deviation-xsuaa-service
           ServiceKeyName: uaa_Deviation-key
-          sap.cloud.service: deviationrouter
+          sap.cloud.service: Deviation-approuter
         existing_destinations_policy: ignore
   build-parameters:
     no-source: true
@@ -66,8 +51,6 @@ resources:
   parameters:
     service: hana
     service-plan: hdi-shared
-  properties:
-    hdi-container-name: ${service-name}
 - name: Deviation-destination-service
   type: org.cloudfoundry.managed-service
   parameters:
@@ -77,12 +60,6 @@ resources:
     service: destination
     service-name: Deviation-destination-service
     service-plan: lite
-- name: Deviation_html_repo_host
-  type: org.cloudfoundry.managed-service
-  parameters:
-    service: html5-apps-repo
-    service-name: Deviation-html5-app-host-service
-    service-plan: app-host
 - name: uaa_Deviation
   type: org.cloudfoundry.managed-service
   parameters:
@@ -90,12 +67,6 @@ resources:
     service: xsuaa
     service-name: Deviation-xsuaa-service
     service-plan: application
-- name: cross-container-service-1
-  type: org.cloudfoundry.existing-service
-  parameters:
-    service-name: Deviation-hdiDeviation-db-deployer-ws-58wdj
-  properties:
-    the-service-name: ${service-name}
 parameters:
   enable-parallel-deployments: true
 build-parameters:
