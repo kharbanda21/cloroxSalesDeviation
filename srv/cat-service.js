@@ -147,31 +147,66 @@ async function _triggerReminder(req) {
     try {
         const selectResult = await tx.run(SELECT.from(Records).where({ poUpdateFlag: '0' }));
         if (selectResult) {
-            let dateReminder = await _getDateTime(new Date());
+            let dateNow = await _getDateTime(new Date());
             selectResult.forEach(record => {
                 //call PO service to check deviation corrected or not
+                //update poUpdateFlag to 1 if deviation is corrected
 
-                //when deviation is still there
+                //when deviation is still there then send reminder mail
+                let email = record.emailId;
+                let sSubject = "REMINDER - You have Order Confirmation price deviations pending approval";
+                let sText = "PO – " + record.poNumber + " (item-" + record.itemNumber + ") was confirmed by the supplier – ABC and have items that were confirmed on " + dateNow + " is out of tolerance and that requires approval.";        
+                let diffHrs = 48;
                 if (!record.reminderDate1) {
-                    let diffHrs = 48;
+                    
                     if (record.initialMailDate) {
-                        diffHrs = diff_hours(new Date(dateReminder), new Date(record.initialMailDate));
+                        diffHrs = diff_hours(new Date(dateNow), new Date(record.initialMailDate));
                     }
                     if (diffHrs >= 48) {
-                        // _sendMail(record, dateReminder);
-                        let email = record.emailId;
-                        let sSubject = "REMINDER - You have Order Confirmation price deviations pending approval";
-                        let sText = "PO – " + record.poNumber + " (item-" + record.itemNumber + ") was confirmed by the supplier – ABC and have items that were confirmed on " + dateReminder + " is out of tolerance and that requires approval.";
                         transporter.sendMail({
                             to: email,
                             subject: sSubject,
                             text: sText
                         }).then((mailResult)=>{
                             if(mailResult.accepted.length > 0) {
-                                cds.run(UPDATE(Records).set({ reminderDate1: dateReminder }).where({ poNumber: record.poNumber, itemNumber: record.itemNumber }));
+                                cds.run(UPDATE(Records).set({ reminderDate1: dateNow }).where({ poNumber: record.poNumber, itemNumber: record.itemNumber }));
                             }
                         });              
                     }
+                } else if (!record.reminderDate2) {
+                    
+                    if (record.reminderDate1) {
+                        diffHrs = diff_hours(new Date(dateNow), new Date(record.reminderDate1));
+                    }
+                    if (diffHrs >= 24) {
+                        transporter.sendMail({
+                            to: email,
+                            subject: sSubject,
+                            text: sText
+                        }).then((mailResult)=>{
+                            if(mailResult.accepted.length > 0) {
+                                cds.run(UPDATE(Records).set({ reminderDate2: dateNow }).where({ poNumber: record.poNumber, itemNumber: record.itemNumber }));
+                            }
+                        });              
+                    }
+
+                } else if (!record.reminderDate3) {
+                    
+                    if (record.reminderDate2) {
+                        diffHrs = diff_hours(new Date(dateNow), new Date(record.reminderDate2));
+                    }
+                    if (diffHrs >= 24) {
+                        transporter.sendMail({
+                            to: email,
+                            subject: sSubject,
+                            text: sText
+                        }).then((mailResult)=>{
+                            if(mailResult.accepted.length > 0) {
+                                cds.run(UPDATE(Records).set({ reminderDate3: dateNow }).where({ poNumber: record.poNumber, itemNumber: record.itemNumber }));
+                            }
+                        });              
+                    }
+
                 }
             });
         }
